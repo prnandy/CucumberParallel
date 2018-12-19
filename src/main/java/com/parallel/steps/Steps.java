@@ -1,4 +1,4 @@
-package com.camiloribeiro.steps;
+package com.parallel.steps;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
