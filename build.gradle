@@ -55,7 +55,7 @@ task runInParallel {
 }
 
 def runCucumberTests(testProperties, tag) {
-    def features = fileTree(dir: "${project.projectDir}/src/main/java/com/camiloribeiro/features/").include '**/*.feature'
+    def features = fileTree(dir: "${project.projectDir}/src/main/java/com/parallel/features/").include '**/*.feature'
 
     GParsPool.withPool(10) {
         features.eachParallel { File file ->
@@ -66,7 +66,7 @@ def runCucumberTests(testProperties, tag) {
                         "-cp ${sourceSets.main.runtimeClasspath.asPath} " +
                         "cucumber.api.cli.Main " +
                         "--glue classpath:com.camiloribeiro " +
-                        "${project.projectDir}/src/main/java/com/camiloribeiro/features/${file.name} " +
+                        "${project.projectDir}/src/main/java/com/parallel/features/${file.name} " +
                         "--plugin json:${reporting.baseDir}/cucumber/${file.name}.json " +
                         "--plugin pretty > ${reporting.baseDir}/cucumber/${file.name}.log " +
                         "--tags ${tag}"
@@ -79,8 +79,8 @@ def runCucumberTests(testProperties, tag) {
 
 task runInSequence() {
     doLast {
-        def arglist = ["-p", "pretty", "-p", "json:${reporting.baseDir}/cucumber/cucumber.json", "--glue", "com.camiloribeiro",
-                       "${project.projectDir}/src/main/java/com/camiloribeiro/features"]
+        def arglist = ["-p", "pretty", "-p", "json:${reporting.baseDir}/cucumber/cucumber.json", "--glue", "com.parallel",
+                       "${project.projectDir}/src/main/java/com/parallel/features"]
 
         return javaexec {
             main = "cucumber.api.cli.Main"
