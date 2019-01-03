@@ -49,29 +49,29 @@ dependencies {
 
 task runInParallel {
     doLast {
-        def testProperties = "-DsomePropertie=somePropertie"
-        runCucumberTests(testProperties, "~@pending")
+        def testProperties = "XYZ"
+        runCucumberTests(testProperties, "@ABC")
     }
 }
 
 def runCucumberTests(testProperties, tag) {
     def features = fileTree(dir: "${project.projectDir}/src/main/java/com/parallel/features/").include '**/*.feature'
 
-    GParsPool.withPool(10) {
+    GParsPool.withPool(15) {
         features.eachParallel { File file ->
             exec {
-                executable "bat"
+                executable "sh"
                 args "-c", "mkdir -p ${reporting.baseDir}/cucumber" +
                         "&& java ${testProperties} " +
-                        "-cp ${sourceSets.main.runtimeClasspath.asPath} " +
-                        "cucumber.api.cli.Main " +
-                        "--glue classpath:com.camiloribeiro " +
-                        "${project.projectDir}/src/main/java/com/parallel/features/${file.name} " +
-                        "--plugin json:${reporting.baseDir}/cucumber/${file.name}.json " +
-                        "--plugin pretty > ${reporting.baseDir}/cucumber/${file.name}.log " +
+                        "-cp ${sourceSets.main.runtimeClasspath.asPath}" +
+                        "cucumber.api.cli.Main" +
+                        "--glue classpath:com.parallel" +
+                        "${project.projectDir}/src/main/java/com/parallel/features/${file.name}" +
+                        "--plugin json:${reporting.baseDir}/cucumber/${file.name}.json" +
+                        "--plugin pretty > ${reporting.baseDir}/cucumber/${file.name}.log" +
                         "--tags ${tag}"
             }
-            println("${file.name}: Scenario output: ${reporting.baseDir}/cucumber/${file.name}.log ")
+            println("${file.name}: Scenario output: ${reporting.baseDir}/cucumber/${file.name}.log")
         }
     }
     generateReport()
