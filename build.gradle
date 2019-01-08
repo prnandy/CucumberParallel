@@ -60,7 +60,7 @@ def runCucumberTests(testProperties, tag) {
     GParsPool.withPool(10) {
         features.eachParallel { File file ->
             exec {
-                executable "bat"
+                executable "sh"
                 args "-c", "mkdir -p ${reporting.baseDir}/cucumber" +
                         "&& java ${testProperties} " +
                         "-cp  '${sourceSets.main.runtimeClasspath.asPath}' " +
