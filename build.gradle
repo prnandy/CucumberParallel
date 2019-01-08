@@ -33,7 +33,7 @@ ext.cukesVersion = '1.2.5'
 
 dependencies {
 
-    compile group: 'net.masterthought', name: 'cucumber-reporting', version: "3.5.1"    
+    compile group: 'net.masterthought', name: 'cucumber-reporting', version: "3.5.1"
     compile group: 'com.googlecode.totallylazy', name: 'totallylazy', version: '1.85'
 
     compile group: 'info.cukes', name: 'cucumber-junit', version: "$cukesVersion"
@@ -49,7 +49,7 @@ dependencies {
 
 task runInParallel {
     doLast {
-        def testProperties = "XYZ"
+        def testProperties = "-DsomePropertie=somePropertie"
         runCucumberTests(testProperties, "@ABC")
     }
 }
@@ -57,21 +57,24 @@ task runInParallel {
 def runCucumberTests(testProperties, tag) {
     def features = fileTree(dir: "${project.projectDir}/src/main/java/com/parallel/features/").include '**/*.feature'
 
-    GParsPool.withPool(15) {
+    GParsPool.withPool(10) {
         features.eachParallel { File file ->
             exec {
-                executable "sh"
+                executable "bat"
                 args "-c", "mkdir -p ${reporting.baseDir}/cucumber" +
                         "&& java ${testProperties} " +
-                        "-cp ${sourceSets.main.runtimeClasspath.asPath}" +
-                        "cucumber.api.cli.Main" +
-                        "--glue classpath:com.parallel" +
-                        "${project.projectDir}/src/main/java/com/parallel/features/${file.name}" +
-                        "--plugin json:${reporting.baseDir}/cucumber/${file.name}.json" +
-                        "--plugin pretty > ${reporting.baseDir}/cucumber/${file.name}.log" +
+                        "-cp  '${sourceSets.main.runtimeClasspath.asPath}' " +
+                        "cucumber.api.cli.Main " +
+                        "--glue classpath:com.parallel " +
+                        "'${project.projectDir}/src/main/java/com/parallel/features/${file.name}' " +                       
+                        "--plugin json:${reporting.baseDir}/cucumber/${file.name}.json " +
+                        "--plugin pretty > ${reporting.baseDir}/cucumber/${file.name}.log "+ 
                         "--tags ${tag}"
+                       
             }
-            println("${file.name}: Scenario output: ${reporting.baseDir}/cucumber/${file.name}.log")
+           println("${file.name}: Scenario output: ${reporting.baseDir}/cucumber/${file.name}.log ")
+   
+   
         }
     }
     generateReport()
@@ -80,7 +83,7 @@ def runCucumberTests(testProperties, tag) {
 task runInSequence() {
     doLast {
         def arglist = ["-p", "pretty", "-p", "json:${reporting.baseDir}/cucumber/cucumber.json", "--glue", "com.parallel",
-                       "${project.projectDir}/src/main/java/com/parallel/features"]
+                       "${project.projectDir}/src/main/java/com/parallel/features", "--tags","@ABC"]
 
         return javaexec {
             main = "cucumber.api.cli.Main"
@@ -111,8 +114,6 @@ def generateReport() {
     println("\nReport available on: ${reporting.baseDir}/cucumber/cucumber-html-reports/overview-features.html")
 }
 
-
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10' //we want gradle 2.10 to run this project
-   // distributionUrl='https://services.gradle.org/distributions/gradle-5.0-bin.zip'
+    gradleVersion = '4.10' //we want gradle 2.10 to run this project
 }
